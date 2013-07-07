@@ -3,8 +3,9 @@ using System.Collections;
 
 public class cureBuff : MonoBehaviour 
 {
-	private PlayerPhysics playerPhysics;
-	private bar bar;
+	public PlayerPhysics playerPhysics;
+	public GameObject player;
+	public bar bar;
 	
 	//gid sizes
     public int xGridSize = 4;
@@ -25,7 +26,8 @@ public class cureBuff : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
-		playerPhysics = GetComponent<PlayerPhysics>();
+		player = GameObject.FindWithTag("player");
+		playerPhysics = player.GetComponent<PlayerPhysics>();
 		bar = GetComponent<bar>();
 	}
 	
@@ -56,15 +58,10 @@ public class cureBuff : MonoBehaviour
 		{
 			if(playerPhysics.zombieStates == PlayerPhysics.ZombieState.fullHuman)
 			{
-				//Destroy item
-				Destroy(gameObject);
-			}
-			else
-			{
 				//Change state
 				playerPhysics.zombieStates -= 1;
 				//Modify the bar to fill up
-				bar.AddjustCurrentZombie(5/60);
+				bar.AddjustCurrentHunger(4);
 				//Destroy item
 				Destroy(gameObject);
 			}
