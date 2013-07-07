@@ -5,6 +5,8 @@ public class Targetting : MonoBehaviour
 {
     public static Targetting instance;
 
+    public static bool isMunching = false;
+
     public List<Transform> allTargets;
 
     public Transform currentTarget;
@@ -20,13 +22,13 @@ public class Targetting : MonoBehaviour
     public float shottyDist = 0.0f;
     [HideInInspector]
     public bool hasTurnedBack = false;
-
+    [HideInInspector]
+    public float curDist;
+    
     private PlayerPhysics playerPhysics;
 
     private float munchDur = 0.0f;
-
-    private float curDist;
-
+    
     void Awake()
     {
         instance = this;
@@ -87,6 +89,8 @@ public class Targetting : MonoBehaviour
             {
                 float dist = Vector3.Distance(target.position, transform.position);
 
+                HumanAIAttackController humanAttackai = target.GetComponent<HumanAIAttackController>();
+
                 //calculate range for shotgun strength
                 if (dist < shottyRange)
                 {
@@ -100,17 +104,27 @@ public class Targetting : MonoBehaviour
 
                     if (Input.GetMouseButton(1) && playerPhysics.zombieStates != PlayerPhysics.ZombieState.fullHuman)
                     {
+                        humanAttackai.moveSpeed = 0;
+
                         munchDur -= Time.deltaTime;
                     }
+                    if (Input.GetMouseButtonUp(1))
+                    {
+                        humanAttackai.moveSpeed = humanAttackai.forwardSpeed;
+                    }
+                }
+
+                if (munchDur <= 0)
+                {
+                    playerPhysics.zombieStates--;
+                    PlayerPhysics.killCount++;
+
+                    Convert conv = target.GetComponent<Convert>();
+                    conv.ConvertToZombie();
+
+                    munchDur = munchDuration;
                 }
             }
-        }
-
-        if (munchDur <= 0)
-        {
-            playerPhysics.zombieStates--;
-            PlayerPhysics.killCount++;
-            munchDur = munchDuration;
         }
     }
 }

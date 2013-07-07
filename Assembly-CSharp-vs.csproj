@@ -37,13 +37,14 @@
     <Reference Include="System.XML" />
 	<Reference Include="System.Core" />
 	<Reference Include="UnityEngine">
-	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	  <HintPath>D:/Unity2/Data/Managed/UnityEngine.dll</HintPath>
 	</Reference>
 	<Reference Include="UnityEditor">
-	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	  <HintPath>D:/Unity2/Data/Managed/UnityEditor.dll</HintPath>
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\AI\Humans\Convert.cs" />
      <Compile Include="Assets\Scripts\AI\Humans\EnemyBulletSpeed.cs" />
      <Compile Include="Assets\Scripts\AI\Humans\HumanAIAttackController.cs" />
      <Compile Include="Assets\Scripts\AI\Humans\HumanAICiviController.cs" />
@@ -67,7 +68,6 @@
      <Compile Include="Assets\Scripts\Player\PlayerMotor.cs" />
      <Compile Include="Assets\Scripts\Player\PlayerPhysics.cs" />
      <Compile Include="Assets\Scripts\Player\Targetting.cs" />
-     <None Include="Assets\Prefabs\something.txt" />
      <None Include="Assets\Textures\somethinbg.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

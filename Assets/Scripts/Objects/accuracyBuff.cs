@@ -3,9 +3,6 @@ using System.Collections;
 
 public class accuracyBuff : MonoBehaviour 
 {
-	private PlayerPhysics playerPhysics;
-	private GameObject player;
-	
 	public bool startPowerUp = false;
 	public float timer = 10;
 	
@@ -27,11 +24,12 @@ public class accuracyBuff : MonoBehaviour
 	//Tempory time variable
 	private float timeVar = 0.0f;
 	
+	private PlayerPhysics playerPhysics;
+	
 	// Use this for initialization
 	void Start () 
 	{
-		player = GameObject.FindWithTag("player");
-		playerPhysics = player.GetComponent<PlayerPhysics>();
+		playerPhysics = GetComponent<PlayerPhysics>();
 	}
 	
 	// Update is called once per frame
@@ -66,14 +64,13 @@ public class accuracyBuff : MonoBehaviour
 		if(other.gameObject.tag == "player")
 		{
 			startPowerUp = true;
-		    Destroy(gameObject);
 		}
 	}
 	
 	public void buff()
 	{
 		//Give the player the ability to instant kill zombies
-		if(timer > 0 && startPowerUp == true)
+		while(timer > 0 && startPowerUp == true)
 		{
 			playerPhysics.pistolDamage = 100;
 			playerPhysics.shottyDamage = 100;

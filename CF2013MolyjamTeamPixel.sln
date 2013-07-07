@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 
 Project("{FBC02B69-F7C9-36DF-E3BE-9EF96EB5761F}") = "CF2013MolyjamTeamPixel", "Assembly-CSharp.csproj", "{97848B14-BAE0-F55F-A4F2-7737A044EFA5}"
 EndProject
+Project("{FBC02B69-F7C9-36DF-E3BE-9EF96EB5761F}") = "CF2013MolyjamTeamPixel", "Assembly-UnityScript.unityproj", "{DC07A298-DC5D-CA0D-6CA1-F413A35CF913}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,11 +15,15 @@ Global
 		{97848B14-BAE0-F55F-A4F2-7737A044EFA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97848B14-BAE0-F55F-A4F2-7737A044EFA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97848B14-BAE0-F55F-A4F2-7737A044EFA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC07A298-DC5D-CA0D-6CA1-F413A35CF913}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC07A298-DC5D-CA0D-6CA1-F413A35CF913}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC07A298-DC5D-CA0D-6CA1-F413A35CF913}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC07A298-DC5D-CA0D-6CA1-F413A35CF913}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-																																						GlobalSection(MonoDevelopProperties) = preSolution
+						GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1

@@ -3,8 +3,10 @@ using System.Collections;
 
 public class HumanAIAttackController : MonoBehaviour
 {
+    public static HumanAIAttackController instance;
+
     //movement variables
-    public float moveSpeed = 10.0f;
+    public float forwardSpeed = 10.0f;
     public float rotateSpeed = 20.0f;
 
     //ranges
@@ -12,6 +14,11 @@ public class HumanAIAttackController : MonoBehaviour
     public float attackRange = 60.0f;
 
     public float fireRate = 2.0f;
+    
+    //[HideInInspector]
+    public float moveSpeed = 0.0f;
+    
+    public int health = 100;
 
     public Transform bullet;
 
@@ -20,6 +27,8 @@ public class HumanAIAttackController : MonoBehaviour
 
     void Awake()
     {
+        instance = this;
+
         player = GameObject.FindWithTag("player");
         playerPhysics = player.GetComponent<PlayerPhysics>();
     }
@@ -57,6 +66,6 @@ public class HumanAIAttackController : MonoBehaviour
     //shoot
     void Shoot()
     {
-        Instantiate(bullet, transform.position, transform.rotation);
+        //Instantiate(bullet, transform.position, transform.rotation);
     }
 }

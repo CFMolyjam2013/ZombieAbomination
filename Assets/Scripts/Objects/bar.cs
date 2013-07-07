@@ -10,7 +10,7 @@ public class bar : MonoBehaviour {
 	public Texture2D barBg;
 	public float barLength;
 	
-	public PlayerPhysics playerPhysics;
+	private PlayerPhysics playerPhysics;
 	
 	// Use this for initialization
 	void Start () 
@@ -29,11 +29,11 @@ public class bar : MonoBehaviour {
 		}
 		if(Input.GetKeyDown(KeyCode.B))
 		{
-			//AddjustCurrentHunger(4);
+			AddjustCurrentZombie(4);
 		}
 		if(Input.GetMouseButton(1))
 		{
-			//AddjustCurrentHunger(1);		
+			AddjustCurrentZombie(1);		
 		}
 		if(Input.GetKeyDown(KeyCode.D))
 		{
@@ -70,6 +70,27 @@ public class bar : MonoBehaviour {
 		barLength = (Screen.width /4)* (curBar / (float)maxBar);
 	}
 	
+	public void AddjustCurrentZombie(int adj)
+	{ 
+		curBar += adj;
+		
+		if(curBar <0)
+		{
+			curBar = 0;	
+		}
+		
+		if(curBar > maxBar)
+		{
+			curBar = maxBar;	
+		}
+		
+		if(maxBar <1)
+		{
+			maxBar = 1;
+		}
+		
+		barLength = (Screen.width /4)* (curBar / (float)maxBar);
+	}
 	public void AddjustCurrentBar(int adj)
 	{ 
 		curBar -= adj;
