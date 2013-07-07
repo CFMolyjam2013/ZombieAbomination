@@ -5,7 +5,7 @@
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
 	<ProductVersion>10.0.20506</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
-	<ProjectGuid>{97848B14-BAE0-F55F-A4F2-7737A044EFA5}</ProjectGuid>
+	<ProjectGuid>{F7D5083C-D0DD-9594-5EE1-A2E8E184D226}</ProjectGuid>
 	<OutputType>Library</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace></RootNamespace>
@@ -64,10 +64,12 @@
      <Compile Include="Assets\Scripts\Objects\rpgSpawn3.cs" />
      <Compile Include="Assets\Scripts\Objects\rpgWeapon.cs" />
      <Compile Include="Assets\Scripts\Objects\shotgunAmmo.cs" />
+     <Compile Include="Assets\Scripts\Player\Aim.cs" />
      <Compile Include="Assets\Scripts\Player\BulletSpeed.cs" />
      <Compile Include="Assets\Scripts\Player\PlayerMotor.cs" />
      <Compile Include="Assets\Scripts\Player\PlayerPhysics.cs" />
      <Compile Include="Assets\Scripts\Player\Targetting.cs" />
+     <None Include="Assets\Prefabs\something.txt" />
      <None Include="Assets\Textures\somethinbg.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
