@@ -39,7 +39,7 @@ function Update () {
         
         Debug.Log(hit.collider.name);
         // goes back to main menu
-        if (hit.collider.name == "back"){
+        if (hit.collider.name == "backCube"){
          	Application.LoadLevel(0);
          }
       }

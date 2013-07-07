@@ -52,6 +52,7 @@
      <Compile Include="Assets\Scripts\AIFolder\AIMotor.cs" />
      <Compile Include="Assets\Scripts\Camera\CameraControl.cs" />
      <Compile Include="Assets\Scripts\Game logic\WaveController.cs" />
+     <Compile Include="Assets\Scripts\LookAtMe.cs" />
      <Compile Include="Assets\Scripts\Objects\accuracyBuff.cs" />
      <Compile Include="Assets\Scripts\Objects\bar.cs" />
      <Compile Include="Assets\Scripts\Objects\cureBuff.cs" />
