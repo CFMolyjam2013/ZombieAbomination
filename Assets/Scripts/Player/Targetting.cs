@@ -5,30 +5,33 @@ public class Targetting : MonoBehaviour
 {
     public static Targetting instance;
 
-    public static bool isMunching = false;
-
     public List<Transform> allTargets;
 
     public Transform currentTarget;
 
-    //[HideInInspector]
+    [HideInInspector]
     public bool hasTurned = false;
-
+    [HideInInspector]
+    public bool isZombieAttacking = false;
+    
     public float munchDuration = 1.0f;
 
+    //ranges
     public float range = 3.0f;
     public float shottyRange = 20.0f;
     [HideInInspector]
     public float shottyDist = 0.0f;
     [HideInInspector]
-    public bool hasTurnedBack = false;
-    [HideInInspector]
     public float curDist;
-    
+
+    public int zombieDamage = 10;
+
     private PlayerPhysics playerPhysics;
 
     private float munchDur = 0.0f;
-    
+
+    private PlayerPhysics.ZombieState lastState;
+
     void Awake()
     {
         instance = this;
@@ -76,10 +79,11 @@ public class Targetting : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-        MunchControl();
+        DistanceControl();
+        ZombieAttack();
 	}
 
-    private void MunchControl()
+    private void DistanceControl()
     {
         curDist = range;
 
@@ -89,6 +93,7 @@ public class Targetting : MonoBehaviour
             {
                 float dist = Vector3.Distance(target.position, transform.position);
 
+                HumanAICiviController humanCiviAI = target.GetComponent<HumanAICiviController>();
                 HumanAIAttackController humanAttackai = target.GetComponent<HumanAIAttackController>();
 
                 //calculate range for shotgun strength
@@ -102,15 +107,18 @@ public class Targetting : MonoBehaviour
                 {
                     curDist = dist;
 
-                    if (Input.GetMouseButton(1) && playerPhysics.zombieStates != PlayerPhysics.ZombieState.fullHuman)
+                    currentTarget = target;
+
+                    if (Input.GetMouseButton(1) && playerPhysics.zombieStates != PlayerPhysics.ZombieState.fullHuman && (humanCiviAI.isDead || humanAttackai.isDead))
                     {
-                        humanAttackai.moveSpeed = 0;
+                        lastState = playerPhysics.zombieStates;
+                        playerPhysics.zombieStates = PlayerPhysics.ZombieState.munching;
 
                         munchDur -= Time.deltaTime;
                     }
                     if (Input.GetMouseButtonUp(1))
                     {
-                        humanAttackai.moveSpeed = humanAttackai.forwardSpeed;
+                        playerPhysics.zombieStates = lastState;
                     }
                 }
 
@@ -119,12 +127,30 @@ public class Targetting : MonoBehaviour
                     playerPhysics.zombieStates--;
                     PlayerPhysics.killCount++;
 
-                    Convert conv = target.GetComponent<Convert>();
-                    conv.ConvertToZombie();
+                    if (humanAttackai.isDead)
+                    {
+                        humanAttackai.Kill();
+                    }
+                    if (humanCiviAI.isDead)
+                    {
+                        humanCiviAI.Kill();
+                    }
 
                     munchDur = munchDuration;
                 }
             }
+        }
+    }
+
+    void ZombieAttack()
+    {
+        if (isZombieAttacking)
+        {
+            HumanAICiviController humanCiviAI = currentTarget.GetComponent<HumanAICiviController>();
+            HumanAIAttackController humanAttackai = currentTarget.GetComponent<HumanAIAttackController>();
+
+            humanCiviAI.HealthControl(-zombieDamage);
+            humanAttackai.HealthControl(-zombieDamage);
         }
     }
 }

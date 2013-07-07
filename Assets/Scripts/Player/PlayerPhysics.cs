@@ -18,6 +18,8 @@ public class PlayerPhysics : MonoBehaviour
 
     public float playerRotSpeed = 120.0f;
 
+    public float frameSpeed = 2.0f;
+
     //weapon fire rates
     public float pistolFireRate = 0.5f;
     public float shottyFireRate = 1.5f;
@@ -31,6 +33,7 @@ public class PlayerPhysics : MonoBehaviour
     //melee ranges
     public float shovelRange = 5.0f;
     public float macheteRange = 2.0f;
+    public float zombieAttackRange = 2.0f;
 
     public float health = 100;
 
@@ -91,7 +94,8 @@ public class PlayerPhysics : MonoBehaviour
         partHuman,
         halfZombie,
         nearFullZombie,
-        fullZombie
+        fullZombie,
+        munching
     }
 
     public ZombieState zombieStates { get; set; }
@@ -103,7 +107,7 @@ public class PlayerPhysics : MonoBehaviour
 
     void Start()
     {
-        zombieStates = ZombieState.halfZombie;
+        zombieStates = ZombieState.fullHuman;
 
         //set default weapon stats
         currentProjectile = pistolBullet;
@@ -115,8 +119,6 @@ public class PlayerPhysics : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        HealthControl(0);
-        Aiming();
         ShottyDamageRange();
 
         if (zombieStates == ZombieState.fullHuman || zombieStates == ZombieState.partHuman)
@@ -124,27 +126,16 @@ public class PlayerPhysics : MonoBehaviour
             WeaponSelection();
             WeaponAttacking();
         }
+        else
+        {
+
+            if (zombieAttackRange < targeting.curDist)
+            {
+                targeting.isZombieAttacking = true;
+            }
+        }
 
         GetMotion();
-    }
-
-    void Aiming()
-    {
-        Vector3 mousePos = Input.mousePosition;
-
-        Vector3 objPos = Camera.main.WorldToScreenPoint(transform.position);
-
-        //get relative position from mouse position and player
-        mousePos.x = mousePos.x - objPos.x;
-        mousePos.y = mousePos.y - objPos.y;
-
-        //get angle
-        angle = Mathf.Atan2(mousePos.y, mousePos.x) * Mathf.Rad2Deg;
-
-        //get rotation
-        Quaternion rot = Quaternion.Euler(new Vector3(0, -angle + counterActAngle, 0));
-        //apply rotation
-        transform.rotation = rot;
     }
 
     void ShottyDamageRange()
@@ -255,7 +246,7 @@ public class PlayerPhysics : MonoBehaviour
                 rpgAmmo.curRpgAmmo--;
                 break;
         }
-        Instantiate(currentProjectile, transform.position, transform.rotation);
+        Aim.instance.Shoot();
     }
 
     void ShovelMelee()
@@ -282,12 +273,11 @@ public class PlayerPhysics : MonoBehaviour
     {
         //get input
         float vInput = Input.GetAxisRaw("Vertical");
-
-        float frameSpeed = 2.0f;
+        float hInput = Input.GetAxisRaw("Horizontal");
 
         //set grid tiles
         xGridPos = 1.0f / xGridSize;
-        yGridPos = 1.0f;
+        yGridPos = 0.25f;
 
         if (vInput != 0)
         {
@@ -309,7 +299,10 @@ public class PlayerPhysics : MonoBehaviour
         }
 
         //move forward
-        transform.position += transform.forward * vInput * MoveSpeed() * Time.deltaTime;
+        transform.position += Vector3.forward * vInput * MoveSpeed() * Time.deltaTime;
+        transform.position += Vector3.right * hInput * MoveSpeed() * Time.deltaTime;
+
+        transform.LookAt(Camera.main.transform.position);
     }
 
     //set speed according to zombie state
@@ -334,6 +327,9 @@ public class PlayerPhysics : MonoBehaviour
             case ZombieState.fullZombie:
                 moveSpeed = fullZombieSpeed;
                 break;
+            case ZombieState.munching:
+                moveSpeed = 0;
+                break;
         }
 
         return moveSpeed;
@@ -343,9 +339,9 @@ public class PlayerPhysics : MonoBehaviour
     {
         health += dmg;
 
-        //if (health <= 0)
-        //{
-            //zombieStates++;
+        if (health <= 0)
+        {
+            zombieStates++;
 
             Targetting.instance.allTargets.Clear();
 
@@ -359,6 +355,6 @@ public class PlayerPhysics : MonoBehaviour
             }
 
             health = 100;
-        //}
+        }
     }
 }

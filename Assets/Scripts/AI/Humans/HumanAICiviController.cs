@@ -13,13 +13,19 @@ public class HumanAICiviController : MonoBehaviour
     //to randomize face direction
     public int randomRot = 1;
 
-    public float moveSpeed = 0.0f;
-    public float timer = 0.0f;
+    public int health = 100;
+
+    private float moveSpeed = 0.0f;
+
+    private float timer = 0.0f;
 
     private GameObject player;
     private PlayerPhysics playerPhysics;
 
     private Quaternion rot;
+
+    [HideInInspector]
+    public bool isDead = false;
 
     public enum MoveState
     {
@@ -45,7 +51,10 @@ public class HumanAICiviController : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-        ProcessMotion();
+        if (!isDead)
+        {
+            ProcessMotion();
+        }
         MoveSpeed();
 	}
 
@@ -110,5 +119,20 @@ public class HumanAICiviController : MonoBehaviour
     void WaitAndResetTimer()
     {
         timer = 2;
+    }
+
+    public void HealthControl(int dmg)
+    {
+        health += dmg;
+
+        if (health <= 0)
+        {
+            isDead = true;
+        }
+    }
+
+    public void Kill()
+    {
+        Destroy(gameObject, 2);
     }
 }
