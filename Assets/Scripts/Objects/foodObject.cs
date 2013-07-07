@@ -4,6 +4,8 @@ using System.Collections;
 public class foodObject : MonoBehaviour 
 {
 	private PlayerPhysics playerPhysics;
+	private GameObject player;
+	private GameObject barObject;
 	private bar bar;
 	
 	//gid sizes
@@ -26,8 +28,10 @@ public class foodObject : MonoBehaviour
 	// Use this for initialization
 	void Start () 
 	{
-		playerPhysics = GetComponent<PlayerPhysics>();
-		bar = GetComponent<bar>();
+		barObject = GameObject.FindWithTag("barObject");
+		player = GameObject.FindWithTag("player");
+		playerPhysics = player.GetComponent<PlayerPhysics>();
+		bar = barObject.GetComponent<bar>();
 	}
 	
 	// Update is called once per frame
@@ -58,7 +62,7 @@ public class foodObject : MonoBehaviour
 			if(bar.curBar != bar.maxBar)
 			{
 				//Fills bar back up
-				bar.AddjustCurrentHunger(1/60);
+				bar.AddjustCurrentHunger(1);
 				//Destroys object
 				Destroy(gameObject);
 			}
