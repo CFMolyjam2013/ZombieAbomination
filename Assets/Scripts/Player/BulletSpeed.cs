@@ -53,7 +53,7 @@ public class BulletSpeed : MonoBehaviour
         if (col.transform.tag == "Zombie")
         {
             damage = PlayerPhysics.currDamage;
-            ZombieAIController.instance.HealthControl(-damage);
+            ZombieAIController.instance.HealthControl(-100);
 
             Destroy(gameObject);
         }

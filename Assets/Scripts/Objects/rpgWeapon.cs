@@ -4,23 +4,33 @@ using System.Collections;
 public class rpgWeapon : MonoBehaviour {
 	
 	public bool haveRpg = false;
-	public int goalKillCount = 20;
-	private PlayerPhysics playerPhysics;
+	public int goalKillCount = 0;
+	
+	public GameObject rpgWeaponSpawn = null;
+	
+	public int minimumX = 1;
+	public int maximumX = 10;
+	
+	public int minimumZ = 4;
+	public int maximumZ = 20;
+	
+	private Transform _t = null;
+	
 
 	// Use this for initialization
 	void Start () 
 	{
-		playerPhysics = GetComponent<PlayerPhysics>();
+		_t = transform;
 	}
 	
 	// Update is called once per frame
 	void Update () 
 	{
 		//Checks the kill count to spawn rpg
-		//if(killCount > goalKillCount && haveRpg == false)
-		//{
-			//SpawnWeapon();
-		//}
+		if(PlayerPhysics.killCount > goalKillCount && haveRpg == false)
+		{
+			SpawnWeapon();
+		}
 	}
 	
 	public void OnCollisionEnter(Collision other)
@@ -38,6 +48,6 @@ public class rpgWeapon : MonoBehaviour {
 	
 	public void SpawnWeapon()
 	{
-		
+		Instantiate(rpgWeaponSpawn,_t.position,Quaternion.identity);
 	}
 }

@@ -40,7 +40,7 @@ public class monsterSpawner : MonoBehaviour
 		playerPhysics = GetComponent<PlayerPhysics>();
 		
 		//gets starting kill count
-		//curKillCount = playerPhysics.;
+		//curKillCount = PlayerPhysics.killCount;
 		
 		//Caching the transform
 		_t = transform;
@@ -50,6 +50,7 @@ public class monsterSpawner : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
+		curKillCount = PlayerPhysics.killCount;
 		//updates kill count
 		curKillCount = curKillCount - lastKillCount;
 		
@@ -59,10 +60,10 @@ public class monsterSpawner : MonoBehaviour
 			paused();
 		}
 		
-		if( _spawnedEnemy != null)
+		if( _spawnedEnemy == null)
 		{	
 			//Spawning the enemy
-			if(spawned <= cap && Time.time > _nextSpawnTime && pause == false)
+			if(spawned <= cap && pause == false)
 			{
 				_nextSpawnTime = Time.time + Random.Range(spawnDelayMin,spawnDelayMax);
 				Instantiate(enemyToSpawn,_t.position,Quaternion.identity);

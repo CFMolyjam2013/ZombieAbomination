@@ -11,19 +11,17 @@ public class ZombieAIController : MonoBehaviour
     public float rotateSpeed = 50.0f;
     public float moveSpeed = 10.0f;
 
+    
+
+    public float convertWaitTime = 1.0f;
+
     [HideInInspector]
     public int curHealth = 100;
 
     public int damage = 10;
-
-    private int randomRot = 1;
-
-    private float timer;
-
+    
     private GameObject player;
     private PlayerPhysics playerPhysics;
-
-    private Quaternion rot;
 
     void Awake()
     {
@@ -32,19 +30,11 @@ public class ZombieAIController : MonoBehaviour
         player = GameObject.FindWithTag("player");
         playerPhysics = player.GetComponent<PlayerPhysics>();
     }
-
-    void Start()
+	
+	void LateUpdate ()
     {
-        timer = 2;
-    }
-
-    void LateUpdate()
-    {
-        if (curHealth > 0)
-        {
-            ProcessMotion();
-        }
-    }
+        ProcessMotion();
+	}
 
     void ProcessMotion()
     {
@@ -58,54 +48,34 @@ public class ZombieAIController : MonoBehaviour
             //only chase if out of range
             if (dist > rangeFromPlayer)
             {
-                CancelInvoke("Bite");
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(targetDir), rotateSpeed);
+                transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y, 0);
+
+                transform.position += transform.forward * moveSpeed * Time.deltaTime;
             }
-            //bite
-            else if (!IsInvoking("Bite"))
+                //start the convert process
+            else if (!Targetting.instance.hasTurned)
             {
-                InvokeRepeating("Bite", 0, 2);
+                //wait a bit before turning
+                StartCoroutine("TurnAndWait", convertWaitTime);
+                playerPhysics.HealthControl(-damage);
+                //playerPhysics.zombieStates++;
             }
         }
-        else
-        {
-            CancelInvoke("Bite");
-            //wander
-            if (timer == 2)
-            {
-                RandomizeRotation();
-            }
-            if (timer > 0)
-            {
-                timer -= Time.deltaTime;
-            }
-            if (timer <= 0)
-            {
-                if (!IsInvoking("WaitAndResetTimer"))
-                {
-                    Invoke("WaitAndResetTimer", 2);
-                }
-            }
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, rot, rotateSpeed * Time.deltaTime);
-        }
-        transform.rotation = Quaternion.Euler(0, transform.eulerAngles.y, 0);
-        transform.position += transform.forward * moveSpeed * Time.deltaTime;
     }
 
-    void Bite()
+    //wait
+    IEnumerator TurnAndWait(float waitTime)
     {
-        playerPhysics.HealthControl(-damage);
-    }
+        Targetting.instance.hasTurned = true;
 
-    void RandomizeRotation()
-    {
-        randomRot = Random.Range(-40, 40);
-        rot = Quaternion.AngleAxis(randomRot, Vector3.up) * transform.rotation;
-    }
+        yield return new WaitForSeconds(waitTime);
 
-    void WaitAndResetTimer()
-    {
-        timer = 2;
+        //create the new list
+        //Targetting.instance.allTargets.Clear();
+        //Targetting.instance.AddAllHumans();
+
+        Targetting.instance.hasTurned = false;
     }
 
     public void HealthControl(int adj)
@@ -115,8 +85,7 @@ public class ZombieAIController : MonoBehaviour
         if (curHealth <= 0)
         {
             PlayerPhysics.killCount++;
-
-            Destroy(gameObject, 2);
+			Destroy (gameObject);
         }
     }
 }

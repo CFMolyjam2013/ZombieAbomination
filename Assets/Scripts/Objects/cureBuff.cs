@@ -6,6 +6,7 @@ public class cureBuff : MonoBehaviour
 	public PlayerPhysics playerPhysics;
 	public GameObject player;
 	public bar bar;
+	public GameObject barObject;
 	
 	//gid sizes
     public int xGridSize = 4;
@@ -27,8 +28,9 @@ public class cureBuff : MonoBehaviour
 	void Start () 
 	{
 		player = GameObject.FindWithTag("player");
+		barObject = GameObject.FindWithTag ("barObject");
 		playerPhysics = player.GetComponent<PlayerPhysics>();
-		bar = GetComponent<bar>();
+		bar = barObject.GetComponent<bar>();
 	}
 	
 	// Update is called once per frame
@@ -56,15 +58,12 @@ public class cureBuff : MonoBehaviour
 	{
 		if(other.gameObject.tag == "player")
 		{
-			if(playerPhysics.zombieStates == PlayerPhysics.ZombieState.fullHuman)
-			{
 				//Change state
 				playerPhysics.zombieStates -= 1;
 				//Modify the bar to fill up
 				bar.AddjustCurrentHunger(4);
 				//Destroy item
 				Destroy(gameObject);
-			}
 		}
 	}
 }
