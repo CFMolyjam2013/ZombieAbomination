@@ -18,6 +18,8 @@ public class PlayerPhysics : MonoBehaviour
 
     public float playerRotSpeed = 120.0f;
 
+    public float frameSpeed = 2.0f;
+
     //weapon fire rates
     public float pistolFireRate = 0.5f;
     public float shottyFireRate = 1.5f;
@@ -28,13 +30,18 @@ public class PlayerPhysics : MonoBehaviour
     public float shottyBulletSpeed = 0.5f;
     public float rpgRocketSpeed = 1.0f;
 
+    //melee ranges
+    public float shovelRange = 5.0f;
+    public float macheteRange = 2.0f;
+    public float zombieAttackRange = 2.0f;
+
     public float health = 100;
 
     //bullet damage values
     public int pistolDamage = 20;
-    public int rpgDamage = 100;
+    public int instaKill = 100;
     public int shottyDamage = 10;
-    
+
     //projectiles
     public Transform pistolBullet;
     public Transform shottyShell;
@@ -63,15 +70,23 @@ public class PlayerPhysics : MonoBehaviour
     private shotgunAmmo shottyAmmoScript;
     private rpgAmmo rpgAmmoScript;
     private Targetting targeting;
-    
+
     private float shottyDamageRangeMod = 0.0f;
-    
+
+    private int xFrameDir = 1;
+    private float yFrameDir = 1;
+    private float tempTime = 0.0f;
+    private float tempTimeOther = 0.0f;
+
+    private int xCurrentFrame;
+
     public enum WeaponSelect
     {
         pistol,
         shotty,
         rpgChainsaw,
-        melee
+        shovel,
+        machete
     }
 
     public WeaponSelect weaponSelected { get; set; }
@@ -83,7 +98,8 @@ public class PlayerPhysics : MonoBehaviour
         partHuman,
         halfZombie,
         nearFullZombie,
-        fullZombie
+        fullZombie,
+        munching
     }
 
     public ZombieState zombieStates { get; set; }
@@ -103,34 +119,27 @@ public class PlayerPhysics : MonoBehaviour
         currDamage = pistolDamage;
         weaponSelected = WeaponSelect.pistol;
     }
-    
+
     // Update is called once per frame
     void Update()
     {
-        Aiming();
         ShottyDamageRange();
-        WeaponSelection();
-        Firing();
+
+        if (zombieStates == ZombieState.fullHuman || zombieStates == ZombieState.partHuman)
+        {
+            WeaponSelection();
+            WeaponAttacking();
+        }
+        else
+        {
+            if (zombieAttackRange < targeting.curDist)
+            {
+                targeting.isZombieAttacking = true;
+            }
+        }
+
+        print(zombieStates);
         GetMotion();
-    }
-
-    void Aiming()
-    {
-        Vector3 mousePos = Input.mousePosition;
-
-        Vector3 objPos = Camera.main.WorldToScreenPoint(transform.position);
-
-        //get relative position from mouse position and player
-        mousePos.x = mousePos.x - objPos.x;
-        mousePos.y = mousePos.y - objPos.y;
-
-        //get angle
-        angle = Mathf.Atan2(mousePos.y, mousePos.x) * Mathf.Rad2Deg;
-
-        //get rotation
-        Quaternion rot = Quaternion.Euler(new Vector3(0, -angle + counterActAngle, 0));
-        //apply rotation
-        transform.rotation = rot;
     }
 
     void ShottyDamageRange()
@@ -164,11 +173,19 @@ public class PlayerPhysics : MonoBehaviour
             weaponSelected = WeaponSelect.rpgChainsaw;
             currentBulletSpeed = rpgRocketSpeed;
             currentProjectile = rpgChainsawRocket;
+            currDamage = instaKill;
         }
-        //melee select
+        //shovel select
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            weaponSelected = WeaponSelect.melee;
+            weaponSelected = WeaponSelect.shovel;
+            currDamage = instaKill;
+        }
+        //machete select
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            weaponSelected = WeaponSelect.machete;
+            currDamage = instaKill;
         }
     }
 
@@ -192,26 +209,68 @@ public class PlayerPhysics : MonoBehaviour
         return fireRate;
     }
 
-    void Firing()
+    void WeaponAttacking()
     {
-        if (Input.GetMouseButton(0) && !IsInvoking("Fire"))
+        if (weaponSelected != WeaponSelect.machete && weaponSelected != WeaponSelect.shovel)
         {
-            Invoke("Fire", SetFireRate());
+            if (Input.GetMouseButton(0) && !IsInvoking("Fire"))
+            {
+                Invoke("Fire", SetFireRate());
+            }
+            if (Input.GetMouseButtonUp(0))
+            {
+                CancelInvoke("Fire");
+            }
         }
-        if (Input.GetMouseButtonUp(0))
+
+        if (Input.GetMouseButtonDown(0))
         {
-            CancelInvoke("Fire");
+            if (weaponSelected == WeaponSelect.shovel)
+            {
+                ShovelMelee();
+            }
+            if (weaponSelected == WeaponSelect.machete)
+            {
+                MacheteMelee();
+            }
         }
     }
 
     void Fire()
     {
-        //switch (weaponSelected)
-        //{
-        //    case WeaponSelect.pistol:
+        switch (weaponSelected)
+        {
+            case WeaponSelect.pistol:
+                pistolAmmo.curPistolAmmo--;
+                break;
+            case WeaponSelect.shotty:
+                shotgunAmmo.curShotgunAmmo--;
+                break;
+            case WeaponSelect.rpgChainsaw:
+                rpgAmmo.curRpgAmmo--;
+                break;
+        }
+        Aim.instance.Shoot();
+    }
 
-        //}
-        Instantiate(currentProjectile, transform.position, transform.rotation);
+    void ShovelMelee()
+    {
+        float dist = targeting.curDist;
+
+        if (dist <= shovelRange)
+        {
+            ZombieAIController.instance.HealthControl(-currDamage);
+        }
+    }
+
+    void MacheteMelee()
+    {
+        float dist = targeting.curDist;
+
+        if (dist <= macheteRange)
+        {
+            ZombieAIController.instance.HealthControl(-currDamage);
+        }
     }
 
     void GetMotion()
@@ -222,39 +281,55 @@ public class PlayerPhysics : MonoBehaviour
 
         //set grid tiles
         xGridPos = 1.0f / xGridSize;
-        yGridPos = 0.5f;
+        yGridPos = 1.0f / yGridSize;
+
+        if (vInput != 0)
+        {
+            xFrameDir = (int)vInput;
+        }
+        if (vInput > 0)
+        {
+            yFrameDir = 0.5f;
+        }
+        if (vInput < 0)
+        {
+            yFrameDir = 0.75f;
+        }
+        if (hInput > 0)
+        {
+            yFrameDir = 0.25f;
+        }
+        if (hInput < 0)
+        {
+            yFrameDir = 1;
+        }
 
         //set scale
-        renderer.material.mainTextureScale = new Vector2(vInput * xGridPos, yGridPos);
+        renderer.material.mainTextureScale = new Vector2(xFrameDir * xGridPos, yGridPos);
 
         if (Time.time - nextTimeFrame > frameDur)
         {
-            nextTimeFrame = Time.time + frameDur;
+            nextTimeFrame = Time.time;
 
-            if (vInput > 0)
+            if (vInput != 0)
             {
-                currentFrame++;
+                tempTime += vInput * (MoveSpeed()) * Time.deltaTime;
             }
-            if (vInput < 0)
+            if (hInput != 0)
             {
-                currentFrame--;
+                tempTime += hInput * (MoveSpeed()) * Time.deltaTime;
             }
-
-            //loop frames
-            if (currentFrame >= xGridSize || currentFrame <= -xGridSize)
-            {
-                currentFrame = 0;
-            }
+            currentFrame = (int)tempTime;
 
             //apply frames
-            renderer.material.mainTextureOffset = new Vector2(vInput * ((currentFrame) % xGridSize + 1) * xGridPos, 1);
+            renderer.material.mainTextureOffset = new Vector2(xFrameDir * ((currentFrame) % xGridSize + 1) * xGridPos, yFrameDir);
         }
 
-        //rotate
-        Quaternion rot = Quaternion.AngleAxis(hInput * playerRotSpeed * Time.deltaTime, transform.up) * transform.rotation;
-        transform.rotation = rot;
         //move forward
-        transform.position += transform.forward * vInput * MoveSpeed() * Time.deltaTime;
+        transform.position += Vector3.forward * vInput * MoveSpeed() * Time.deltaTime;
+        transform.position += Vector3.right * hInput * MoveSpeed() * Time.deltaTime;
+
+        transform.LookAt(Camera.main.transform.position);
     }
 
     //set speed according to zombie state
@@ -279,6 +354,9 @@ public class PlayerPhysics : MonoBehaviour
             case ZombieState.fullZombie:
                 moveSpeed = fullZombieSpeed;
                 break;
+            case ZombieState.munching:
+                moveSpeed = 0;
+                break;
         }
 
         return moveSpeed;
@@ -293,6 +371,7 @@ public class PlayerPhysics : MonoBehaviour
             zombieStates++;
 
             Targetting.instance.allTargets.Clear();
+            targeting.currentTarget = null;
 
             if (zombieStates != ZombieState.fullHuman)
             {
